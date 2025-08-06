@@ -1,0 +1,39 @@
+{
+  "name": "llm-pdf-analysis",
+  "version": "1.0.0",
+  "description": "Backend pipeline using LangChain, Pinecone, and Gemini to analyze PDF documents",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "langchain",
+    "pinecone",
+    "gemini",
+    "pdf",
+    "ai",
+    "llm"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^1.12.0",
+    "@google/generative-ai": "^0.24.1",
+    "@langchain/community": "^0.3.49",
+    "@langchain/core": "^0.3.58",
+    "@langchain/google-genai": "^0.0.10",
+    "@langchain/pinecone": "^0.0.6",
+    "@langchain/textsplitters": "^0.0.3",
+    "@pinecone-database/pinecone": "^2.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "pdf-parse": "^1.1.1",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
