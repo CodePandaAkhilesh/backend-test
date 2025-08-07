@@ -1,4 +1,4 @@
-// Importing required libraries and modules
+// All required imports
 import express from "express";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
@@ -11,70 +11,59 @@ import fs from "fs/promises";
 import path from "path";
 import dotenv from "dotenv";
 
-// Load environment variables from .env file
 dotenv.config();
 
 const router = express.Router();
-// Initialize Google GenAI SDK for use with Gemini
 const ai = new GoogleGenAI({});
 
-// Route to process the PDF and questions
+// 📌 POST /run
+// Main endpoint for processing insurance policy documents and answering user questions
 router.post("/run", async (req, res) => {
   console.log("🔁 Received request at /run");
 
   try {
-    // ✅ Authentication check using Bearer token from headers
-    // const authHeader = req.headers.authorization || "";
-    // const token = authHeader.split(" ")[1];
-    // if (!token || token !== process.env.API_TOKEN) {
-    //   console.warn("⚠️ Unauthorized request");
-    //   return res.status(401).json({ error: "Unauthorized" });
-    // }
-
-    // ✅ Destructure documents (PDF URL) and questions from request body
     const { documents: pdfUrl, questions } = req.body;
+
+    // ✅ Validate request body
     if (!pdfUrl || !Array.isArray(questions)) {
       console.error("❌ Invalid request format");
       return res.status(400).json({ error: "Invalid request format" });
     }
 
-    // ✅ Download PDF from given URL and store temporarily
+    // ⬇️ Step 1: Download the PDF from provided URL
     console.log("⬇️ Downloading PDF from:", pdfUrl);
     const response = await fetch(pdfUrl);
     if (!response.ok) throw new Error("Failed to fetch PDF");
 
+    // 💾 Save PDF to a temporary file
     const pdfBuffer = await response.arrayBuffer();
     const tempPath = path.join("temp.pdf");
     await fs.writeFile(tempPath, Buffer.from(pdfBuffer));
-    console.log("✅ PDF downloaded and saved to temp.pdf");
+    console.log("✅ PDF saved to temp.pdf");
 
-    // ✅ Load and split PDF into smaller chunks for embedding
-    console.log("🔍 Loading and splitting PDF...");
+    // 📄 Step 2: Load and split PDF content into smaller chunks
     const loader = new PDFLoader(tempPath);
     const docs = await loader.load();
 
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1000,
+      chunkSize: 800,
       chunkOverlap: 200,
     });
 
     const splitDocs = await splitter.splitDocuments(docs);
     console.log(`✅ Split into ${splitDocs.length} chunks`);
 
-    // ✅ Initialize Google Generative AI Embeddings
-    console.log("🧠 Initializing embeddings...");
+    // 🧠 Step 3: Generate embeddings using Gemini
     const embeddings = new GoogleGenerativeAIEmbeddings({
       apiKey: process.env.GEMINI_API_KEY,
       model: "text-embedding-004",
     });
 
-    // ✅ Connect to Pinecone vector database
-    console.log("🌲 Connecting to Pinecone...");
+    // 🌲 Step 4: Connect to Pinecone vector DB
     const pinecone = new Pinecone();
     const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME);
-    console.log("✅ Connected to Pinecone index");
 
-    // ✅ Store the split documents in Pinecone for future semantic retrieval
+    // 🧾 Step 5: Index embedded chunks into Pinecone for similarity search
     console.time("🧾 Indexing to Pinecone");
     await PineconeStore.fromDocuments(splitDocs, embeddings, {
       pineconeIndex,
@@ -82,29 +71,28 @@ router.post("/run", async (req, res) => {
     });
     console.timeEnd("🧾 Indexing to Pinecone");
 
-    const results = [];
-    let correctCount = 0;
+    // ⏳ Wait to ensure indexing is complete (important for fresh indexes)
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    console.log("⏳ Waited 3 seconds after indexing.");
 
-    // ✅ Process each user question
-    for (const q of questions) {
+    // ❓ Step 6: Process each user question
+    const questionPromises = questions.map(async (q) => {
       const start = Date.now();
       console.log(`💬 Processing question: ${q}`);
 
-      // Rewrite the query to be self-contained
-      const rewritten = await transformQuery(q);
-      console.log("🔁 Rewritten Question:", rewritten);
+      const rewritten = q;
 
-      // Convert the question into an embedding vector
+      // 🔍 Get vector embedding for the question
       const vector = await embeddings.embedQuery(rewritten);
 
-      // Query Pinecone for top-k similar chunks from the document
+      // 🔎 Search Pinecone for most relevant document chunks
       const searchResults = await pineconeIndex.query({
-        topK: 10,
+        topK: 5,
         vector,
         includeMetadata: true,
       });
 
-      // ✅ Prepare limited-length document context for Gemini model
+      // 📚 Gather top context chunks within 12,000 characters
       let totalLength = 0;
       const contextChunks = [];
       for (const match of searchResults.matches) {
@@ -116,9 +104,9 @@ router.post("/run", async (req, res) => {
       }
 
       const context = contextChunks.join("\n\n---\n\n");
-      console.log("📄 Retrieved Context (first 500 chars):\n", context.slice(0, 500), "...");
+      console.log("📄 Context snippet:", context.slice(0, 300), "...");
 
-      // ✅ Prompt construction for Gemini: simulate an insurance policy analyst
+      // ✨ Build a prompt for Gemini with strict instructions
       const geminiPrompt = `
 You are a certified insurance policy analyst.
 
@@ -135,72 +123,50 @@ Context:
 ${context}
 
 Question: ${rewritten}
-`.trim();
+      `.trim();
 
-      // ✅ Call Gemini to get the answer
+      // 🤖 Generate answer using Gemini 2.0 Flash model
       const geminiResponse = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: geminiPrompt }],
-          },
-        ],
+        contents: [{ role: "user", parts: [{ text: geminiPrompt }] }],
       });
 
-      // ✅ Extract and log answer
       const answer = geminiResponse.text?.trim() || "No answer generated";
-      console.log("✅ Answer generated:", answer);
-
-      // ✅ Count answer as correct if it is not "Not mentioned..."
-      if (!/^not mentioned in the document\.*$/i.test(answer)) {
-        correctCount += 1;
-      }
-
       const timeTaken = Date.now() - start;
-      results.push({ question: q, answer, responseTimeMs: timeTaken });
-    }
 
-    // ✅ Delete the temporary PDF file after use
+      return {
+        question: q,
+        answer,
+        responseTimeMs: timeTaken,
+        isCorrect: !/^not mentioned in the document\.*$/i.test(answer),
+      };
+    });
+
+    const questionResults = await Promise.all(questionPromises);
+
+    // 📊 Step 7: Calculate and log performance metrics
+    const totalResponseTime = questionResults.reduce((sum, r) => sum + r.responseTimeMs, 0);
+    const correctCount = questionResults.filter((r) => r.isCorrect).length;
+    const averageResponseTime = totalResponseTime / questions.length;
+    const accuracy = (correctCount / questions.length) * 100;
+
+    console.log(`📊 Total Questions: ${questions.length}`);
+    console.log(`⏱️ Total Response Time: ${totalResponseTime} ms`);
+    console.log(`⏱️ Average Response Time: ${averageResponseTime.toFixed(2)} ms`);
+    console.log(`🎯 Accuracy: ${accuracy.toFixed(2)}%`);
+
+    // 🧹 Cleanup: delete temporary PDF
     await fs.unlink(tempPath);
     console.log("🧹 Temp file deleted");
 
-    // ✅ Return only the answers in response
+    // 📤 Final response to client
     res.json({
-      answers: results.map(r => r.answer)
+      answers: questionResults.map((r) => r.answer),
     });
-
   } catch (err) {
-    // ✅ Handle and report errors
     console.error("💥 Error in /run:", err);
     res.status(500).json({ error: "Server error", message: err.message });
   }
 });
 
-// ✅ Helper function to rewrite queries clearly before embedding
-async function transformQuery(question) {
-  console.log("🔧 Rewriting query:", question);
-
-  const response = await ai.models.generateContent({
-    model: "gemini-1.5-flash",
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            text: `You are a query rewriting expert. Rewrite the following question to make it fully self-contained and clear on its own:\n\n"${question}"`,
-          },
-        ],
-      },
-    ],
-  });
-
-  const rewritten = response.text?.trim() || question;
-  console.log("🔁 Rewritten as:", rewritten);
-  return rewritten;
-}
-
 export default router;
-
-
-// http://localhost:8080/hackrx/run

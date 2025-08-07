@@ -11,6 +11,11 @@ app.use(express.json());
 
 app.use("/hackrx", hackrxRouter);
 
+// Test endpoint to check server status
+app.get("/ping", (req, res) => {
+  res.send("PONG"); // Respond with "PONG" to indicate server is up
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
