@@ -24,12 +24,12 @@ router.post("/run", async (req, res) => {
 
   try {
     // ✅ Authentication check using Bearer token from headers
-    const authHeader = req.headers.authorization || "";
-    const token = authHeader.split(" ")[1];
-    if (!token || token !== process.env.API_TOKEN) {
-      console.warn("⚠️ Unauthorized request");
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    // const authHeader = req.headers.authorization || "";
+    // const token = authHeader.split(" ")[1];
+    // if (!token || token !== process.env.API_TOKEN) {
+    //   console.warn("⚠️ Unauthorized request");
+    //   return res.status(401).json({ error: "Unauthorized" });
+    // }
 
     // ✅ Destructure documents (PDF URL) and questions from request body
     const { documents: pdfUrl, questions } = req.body;
@@ -99,7 +99,7 @@ router.post("/run", async (req, res) => {
 
       // Query Pinecone for top-k similar chunks from the document
       const searchResults = await pineconeIndex.query({
-        topK: 5,
+        topK: 10,
         vector,
         includeMetadata: true,
       });
@@ -201,3 +201,6 @@ async function transformQuery(question) {
 }
 
 export default router;
+
+
+// http://localhost:8080/hackrx/run
