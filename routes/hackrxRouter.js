@@ -72,8 +72,8 @@ router.post("/run", async (req, res) => {
     console.timeEnd("🧾 Indexing to Pinecone");
 
     // ⏳ Wait to ensure indexing is complete (important for fresh indexes)
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    console.log("⏳ Waited 3 seconds after indexing.");
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    console.log("⏳ Waited 5 seconds after indexing.");
 
     // ❓ Step 6: Process each user question
     const questionPromises = questions.map(async (q) => {
