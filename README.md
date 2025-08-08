@@ -30,6 +30,9 @@ This project is a backend API that uses **LLMs (Gemini)**, **LangChain**, and **
 
 ### 🔗 Example Request Body
 
+Content-Type: application/json ( in Headers of POSTMAN )
+Authorization: Bearer Your secret token ( in Headers of POSTMAN )
+
 ```json
 {
   "documents": "https://example.com/your-document.pdf",
@@ -70,7 +73,7 @@ This project is a backend API that uses **LLMs (Gemini)**, **LangChain**, and **
 ## 🛠️ Setup (Local)
 
 ```bash
-git clone https://github.com/yourusername/llm-query-retrieval.git
+git clone https://github.com/CodePandaAkhilesh/backend-test
 cd backend-test
 npm install (add "type:module" in package.json file)
 ```
@@ -99,7 +102,8 @@ npm run dev
 ## 🌐 Hosted Demo
 
 Try it live:  
-**POST** → [`https://hackrx-backend-nv7c.onrender.com/hackrx/run`](https://hackrx-backend-nv7c.onrender.com/hackrx/run)
+**POST** → [`https://hackrx-backend-nv7c.onrender.com/hackrx/run`](https://hackrx-backend-nv7c.onrender.com/hackrx/run) 
+hit in POSTMAN along with Doc url and question in body (json form)
 
 ---
 
