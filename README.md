@@ -10,7 +10,7 @@ This project is a backend API that uses **LLMs (Gemini)**, **LangChain**, and **
 - ✅ Extracts relevant sections based on semantic search  
 - ✅ Parses and answers natural language questions  
 - ✅ Provides structured and explainable JSON responses  
-- ✅ Hosted on **Render**
+- ✅ Hosted on **Render** (https://hackrx-backend-nv7c.onrender.com/ping)
 
 ---
 
