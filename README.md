@@ -103,7 +103,7 @@ npm run dev
 
 Try it live:  
 **POST** → [`https://hackrx-backend-nv7c.onrender.com/hackrx/run`](https://hackrx-backend-nv7c.onrender.com/hackrx/run) 
-hit in POSTMAN along with Doc url and question in body (json form)
+- ( Hit in POSTMAN along with Document url and question in body (json form) )
 
 ---
 
