@@ -73,20 +73,20 @@ Our solution:
 
 ```bash
 # 1️⃣ Clone Repository
-git clone https://github.com/CodePandaAkhilesh/fastapi-hackrx.git
-cd fastapi-hackrx
+git clone https://github.com/CodePandaAkhilesh/hackrx6.0-backend
+cd hackrx6.0-backend
 
 # 2️⃣ Install Dependencies
-pip install -r requirements.txt
+npm install
 
 # 3️⃣ Create .env File
 GEMINI_API_KEY=your_gemini_api_key
 PINECONE_API_KEY=your_pinecone_api_key
-PINECONE_ENVIRONMENT=us-east-1
+PINECONE_ENVIRONMENT=us-east-1 (defaukt)
 PINECONE_INDEX_NAME=your_index_name
 
 # 4️⃣ Run App in Development Mode
-uvicorn main:app --reload
+num start / npm run dev
 ```
 
 ---
