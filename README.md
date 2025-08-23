@@ -59,17 +59,12 @@ Our solution:
 ```
 .
 ├── .env                     # Environment variables (API keys, config)
-├── main.py                  # FastAPI entry point
-├── requirements.txt         # Dependencies list
+├── index.js                 # Entry point for Express server
+├── package.json             # Project dependencies & scripts
+├── package-lock.json        # Dependency lockfile
 ├── routes/
-│   ├── __pycache__/         # Compiled Python files (auto-generated)
-│   └── hackrx.py            # Core logic for document ingestion, embedding, Q&A
-├── .venv/                   # Virtual environment (local to project)
-│   ├── Include/
-│   ├── Lib/
-│   ├── Scripts/
-│   └── pyvenv.cfg
-└── __pycache__/             # Compiled Python cache for main.py
+│   └── hackrxRouter.js      # Core API routes (document ingestion, embedding, Q&A)
+└── node_modules/            # Installed dependencies
 ```
 
 ---
