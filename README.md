@@ -30,14 +30,12 @@ Our solution:
 ## 🛠️ Tech Stack
 | Layer | Technology |
 |-------|------------|
-| Backend API | FastAPI |
+| Backend API | Express.js |
 | LLM | Google Gemini (gemini-2.5-flash) |
 | Embeddings | Gemini `models/embedding-001` |
 | Vector DB | Pinecone |
-| PDF Parsing | pypdf + LangChain PyPDFLoader |
 | Chunking | RecursiveCharacterTextSplitter |
 | Deployment | Render |
-| Utilities | python-dotenv, requests, asyncio |
 
 ---
 
