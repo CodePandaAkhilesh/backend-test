@@ -1,7 +1,7 @@
 # 📄 LLM-Powered Intelligent Query–Retrieval System
 
 ## 💻 GitHub Repository
-**Code:** [[https://github.com/CodePandaAkhilesh/fastapi-hackrx](https://github.com/CodePandaAkhilesh/hackrx6.0-backend)  ](https://github.com/CodePandaAkhilesh/hackrx6.0-backend)
+**Code:** [https://github.com/CodePandaAkhilesh/fastapi-hackrx](https://github.com/CodePandaAkhilesh/hackrx6.0-backend)
 **API Endpoint:** [https://fastapi-hackrx-1.onrender.com/hackrx/run](https://fastapi-hackrx-1.onrender.com/hackrx/run)
 
 ---
